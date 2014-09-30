@@ -2583,7 +2583,19 @@ bool LoadBlockIndex(bool fAllowNew)
         //block.hashMerkleRoot == 5f564e2b165f11e73354d056e1c4a54286b0441ef024724c469b3c0b737a8610
         //block.nTime = 1411430400 
         //block.nNonce = 791344921 
-        //block.nBits = 486801407 
+        //block.nBits = 486801407
+
+        // Genesis block - TestNet
+        //CBlock(hash=000016e0769e828f8c53fe4ab8aa366dd0573bf27bef497bd36c52cc8a00e264, ver=1, hashPrevBlock=0000000000000000000000000000000000000000000000000000000000000000, hashMerkleRoot=5f564e2b165f11e73354d056e1c4a54286b0441ef024724c469b3c0b737a8610, nTime=1411430400, nBits=1f00ffff, nNonce=21294, vtx=1, vchBlockSig=)
+        //Coinbase(hash=5f564e2b16, nTime=1411430400, ver=1, vin.size=1, vout.size=1, nLockTime=0)
+        //CTxIn(COutPoint(0000000000, 4294967295), coinbase 0488437507012a4c4c53657074656d6265722032326e642c2032303134202d2047414d4553504f543a2048617070792042697274686461792c204e696e74656e646f2120436f6d70616e79205475726e7320313235)
+        //CTxOut(empty)
+        //vMerkleTree: 5f564e2b16 
+        //block.GetHash() == 000016e0769e828f8c53fe4ab8aa366dd0573bf27bef497bd36c52cc8a00e264
+        //block.hashMerkleRoot == 5f564e2b165f11e73354d056e1c4a54286b0441ef024724c469b3c0b737a8610
+        //block.nTime = 1411430400 
+        //block.nNonce = 21294 
+        //block.nBits = 520159231 
 
         const char* pszTimestamp = "September 22nd, 2014 - GAMESPOT: Happy Birthday, Nintendo! Company Turns 125";
         CTransaction txNew;

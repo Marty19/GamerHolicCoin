@@ -1141,6 +1141,7 @@ void MapPort()
 static const char *strDNSSeed[][2] = {
     {"ghc.seedbank.io", "ghc.seedbank.io"},
     {"146.148.60.58", "146.148.60.58"},
+    {"ghcdnsseed1.seedbank.io", "ghcdnsseed1.seedbank.io"},
 };
 
 void ThreadDNSAddressSeed(void* parg)

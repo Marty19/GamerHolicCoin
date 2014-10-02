@@ -1176,7 +1176,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
 {
     int DiffMode = 1;
     if (fTestNet) {
-        if (pindexLast->nHeight+1 >= 20) { 
+        if (pindexLast->nHeight+1 >= KGW_FORK_BLOCK_TESTNET) { 
             if (fProofOfStake) { 
                 DiffMode = 1;
             } else {
@@ -1184,7 +1184,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
             }
         }
     } else {
-        if (pindexLast->nHeight+1 >= 5500) { // KGW kicks in at block 5,500 BW
+        if (pindexLast->nHeight+1 >= KGW_FORK_BLOCK) { // KGW kicks in at block 5,500 BW
             if (fProofOfStake) { 
                 DiffMode = 1;
             } else {

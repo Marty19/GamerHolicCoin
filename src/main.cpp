@@ -995,34 +995,31 @@ int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees)
     return nSubsidy + nFees;
 }
 
-static const int64_t nTargetTimespan = 16 * 60;  // 1 min
-
-//
-// maximum nBits value could possible be required nTime after
-//
-unsigned int ComputeMaxBits(CBigNum bnTargetLimit, unsigned int nBase, int64_t nTime)
-{
-    CBigNum bnResult;
-    bnResult.SetCompact(nBase);
-    bnResult *= 2;
-    while (nTime > 0 && bnResult < bnTargetLimit)
-    {
-        // Maximum 200% adjustment per day...
-        bnResult *= 2;
-        nTime -= 24 * 60 * 60;
-    }
-    if (bnResult > bnTargetLimit)
-        bnResult = bnTargetLimit;
-    return bnResult.GetCompact();
-}
+static const int64_t nTargetTimespan = 16 * 120;  // 2 min
 
 //
 // minimum amount of work that could possibly be required nTime after
-// minimum proof-of-work required was nBase
+// minimum work required was nBase
 //
-unsigned int ComputeMinWork(unsigned int nBase, int64_t nTime)
+unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 {
-    return ComputeMaxBits(bnProofOfWorkLimit, nBase, nTime);
+    // Testnet has min-difficulty blocks
+    // after nTargetSpacing*2 time between blocks:
+    if (fTestNet && nTime > nTargetSpacing*2)
+        return bnProofOfWorkLimit.GetCompact();
+
+    CBigNum bnResult;
+    bnResult.SetCompact(nBase);
+    while (nTime > 0 && bnResult < bnProofOfWorkLimit)
+    {
+        // Maximum 200% adjustment...
+        bnResult *= 2;
+        // ... per timespan
+        nTime -= nTargetTimespan;
+    }
+    if (bnResult > bnProofOfWorkLimit)
+        bnResult = bnProofOfWorkLimit;
+    return bnResult.GetCompact();
 }
 
 //
@@ -1136,7 +1133,7 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, uint64_t Ta
 //unsigned int static GetNextTargetRequiredV2(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 unsigned int static GetNextTargetRequiredV2(const CBlockIndex* pindexLast)
 {
-        static const int64_t BlocksTargetSpacing = 60; // 1 minutes
+        static const int64_t BlocksTargetSpacing = 120; // 1 minutes
         unsigned int TimeDaySeconds = 60 * 60 * 24;
         int64_t PastSecondsMin = TimeDaySeconds * 0.23;
         int64_t PastSecondsMax = TimeDaySeconds * 1;

@@ -117,7 +117,7 @@ double GetPoWMHashPS()
 */
 double GetPoSKernelPS()
 {
-    int nPoSInterval = 120;
+    int nPoSInterval = 72;
     double dStakeKernelsTriedAvg = 0;
     int nStakesHandled = 0, nStakesTime = 0;
 

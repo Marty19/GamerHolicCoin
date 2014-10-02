@@ -21,8 +21,8 @@ double GetDifficulty(const CBlockIndex* blockindex)
         if (pindexBest == NULL)
             return 1.0;
         else
-            //blockindex = GetLastBlockIndex(pindexBest, false);
-            blockindex = pindexBest;
+            blockindex = GetLastBlockIndex(pindexBest, false);
+           // blockindex = pindexBest;
     }
 
     int nShift = (blockindex->nBits >> 24) & 0xff;

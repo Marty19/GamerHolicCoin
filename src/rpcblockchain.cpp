@@ -44,57 +44,21 @@ double GetDifficulty(const CBlockIndex* blockindex)
     return dDiff;
 }
 
-// Return average network hashes per second based on the last 'lookup' blocks,
-// or from the last difficulty change if 'lookup' is nonpositive.
-// If 'height' is nonnegative, compute the estimate at the time when a given block was found.
-double GetPoWMHashPS_V2(int lookup, int height) {
-    CBlockIndex *pb = pindexBest;
-
-    if (height >= 0 && height < nBestHeight)
-        pb = FindBlockByHeight(height);
-
-    if (pb == NULL || !pb->nHeight)
-        return 0;
-
-    // If lookup is -1, then use blocks since last difficulty change.
-    if (lookup <= 0)
-        lookup = pb->nHeight % 2016 + 1;
-
-    // If lookup is larger than chain, then set it to chain length.
-    if (lookup > pb->nHeight)
-        lookup = pb->nHeight;
-
-    CBlockIndex *pb0 = pb;
-    int64_t minTime = pb0->GetBlockTime();
-    int64_t maxTime = minTime;
-    for (int i = 0; i < lookup; i++) {
-        pb0 = pb0->pprev;
-        int64_t time = pb0->GetBlockTime();
-        minTime = std::min(time, minTime);
-        maxTime = std::max(time, maxTime);
-    }
-
-    // In case there's a situation where minTime == maxTime, we don't want a divide by zero exception.
-    if (minTime == maxTime)
-        return 0;
-
-    uint256 workDiff = pb->nChainTrust - pb0->nChainTrust;
-    int64_t timeDiff = maxTime - minTime;
-
-    return (boost::int64_t)(workDiff.getdouble() / timeDiff);
-}
-
-
 double GetPoWMHashPS()
 {
-    return GetPoWMHashPS_V2(-1, -1);
-}
-
-/*    //if (pindexBest->nHeight >= LAST_POW_BLOCK)
+    //if (pindexBest->nHeight >= LAST_POW_BLOCK)
     //    return 0;
 
     int nPoWInterval = 72;
     int64_t nTargetSpacingWorkMin = 30, nTargetSpacingWork = 30;
+    if (!fTestNet){
+        if (pindexBest->nHeight >= KGW_FORK_BLOCK)
+        {
+            nPoWInterval = 120;
+            nTargetSpacingWorkMin = 60;
+            nTargetSpacingWork = 60;
+        }
+    }
 
     CBlockIndex* pindex = pindexGenesisBlock;
     CBlockIndex* pindexPrevWork = pindexGenesisBlock;
@@ -114,10 +78,16 @@ double GetPoWMHashPS()
 
     return GetDifficulty() * 4294.967296 / nTargetSpacingWork;
 }
-*/
+
 double GetPoSKernelPS()
 {
     int nPoSInterval = 72;
+    if (!fTestNet){
+        if (pindexBest->nHeight >= KGW_FORK_BLOCK)
+        {
+            nPoSInterval = 144;
+        }
+    }
     double dStakeKernelsTriedAvg = 0;
     int nStakesHandled = 0, nStakesTime = 0;
 

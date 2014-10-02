@@ -45,9 +45,6 @@ unsigned int nStakeMinAge = 8 * 60 * 60; // 8 hours
 unsigned int nStakeMaxAge = -1; // unlimited
 unsigned int nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
-const static int KGW_FORK_BLOCK_TESTNET = 25;
-const static int KGW_FORK_BLOCK = 7000;
-
 int nCoinbaseMaturity = 250;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;

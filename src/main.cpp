@@ -45,6 +45,9 @@ unsigned int nStakeMinAge = 8 * 60 * 60; // 8 hours
 unsigned int nStakeMaxAge = -1; // unlimited
 unsigned int nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
+const static int KGW_FORK_BLOCK_TESTNET = 25;
+const static int KGW_FORK_BLOCK = 7000;
+
 int nCoinbaseMaturity = 250;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -995,31 +998,57 @@ int64_t GetProofOfStakeReward(int64_t nCoinAge, int64_t nFees)
     return nSubsidy + nFees;
 }
 
-static const int64_t nTargetTimespan = 16 * 120;  // 2 min
+static const int64_t nTargetTimespan = 16 * 60;  // 1 min
+
+unsigned int ComputeMaxBits(CBigNum bnTargetLimit, unsigned int nBase, int64_t nTime)
+{
+    CBigNum bnResult;
+    bnResult.SetCompact(nBase);
+    bnResult *= 2;
+    while (nTime > 0 && bnResult < bnTargetLimit)
+    {
+        bnResult *= 2;
+        nTime -= 24 * 60 * 60;
+    }
+    if (bnResult > bnTargetLimit)
+        bnResult = bnTargetLimit;
+    return bnResult.GetCompact();
+}
+
 
 //
 // minimum amount of work that could possibly be required nTime after
 // minimum work required was nBase
 //
-unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
+unsigned int ComputeMaxBits_V2(CBigNum bnTargetLimit, unsigned int nBase, int64_t nTime)
 {
     // Testnet has min-difficulty blocks
     // after nTargetSpacing*2 time between blocks:
     if (fTestNet && nTime > nTargetSpacing*2)
-        return bnProofOfWorkLimit.GetCompact();
+        return bnTargetLimit.GetCompact();
 
     CBigNum bnResult;
     bnResult.SetCompact(nBase);
-    while (nTime > 0 && bnResult < bnProofOfWorkLimit)
+    while (nTime > 0 && bnResult < bnTargetLimit)
     {
         // Maximum 200% adjustment...
         bnResult *= 2;
         // ... per timespan
-        nTime -= nTargetTimespan;
+        nTime -= 24 * 60 * 30;
     }
-    if (bnResult > bnProofOfWorkLimit)
-        bnResult = bnProofOfWorkLimit;
+    if (bnResult > bnTargetLimit)
+        bnResult = bnTargetLimit;
     return bnResult.GetCompact();
+}
+
+
+//
+// minimum amount of work that could possibly be required nTime after
+// minimum proof-of-work required was nBase
+//
+unsigned int ComputeMinWork(unsigned int nBase, int64_t nTime)
+{
+    return ComputeMaxBits(bnProofOfWorkLimit, nBase, nTime);
 }
 
 //
@@ -1147,7 +1176,13 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
 {
     int DiffMode = 1;
     if (fTestNet) {
-        if (pindexLast->nHeight+1 >= 50) { DiffMode = 2; }
+        if (pindexLast->nHeight+1 >= 20) { 
+            if (fProofOfStake) { 
+                DiffMode = 1;
+            } else {
+                DiffMode = 2;
+            }
+        }
     } else {
         if (pindexLast->nHeight+1 >= 5500) { // KGW kicks in at block 5,500 BW
             if (fProofOfStake) { 

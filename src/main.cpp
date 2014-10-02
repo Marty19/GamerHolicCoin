@@ -1168,7 +1168,9 @@ unsigned int static GetNextTargetRequiredV2(const CBlockIndex* pindexLast)
         int64_t PastSecondsMax = TimeDaySeconds * 1;
         uint64_t PastBlocksMin = PastSecondsMin / BlocksTargetSpacing;
         uint64_t PastBlocksMax = PastSecondsMax / BlocksTargetSpacing;
-        
+        if (fTestNet) {
+            PastBlocksMin = KGW_FORK_BLOCK_TESTNET;
+        }
         return KimotoGravityWell(pindexLast, BlocksTargetSpacing, PastBlocksMin, PastBlocksMax);
 }
 
